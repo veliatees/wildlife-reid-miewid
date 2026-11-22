@@ -1,0 +1,49 @@
+{
+  "data_root": "/kaggle/input/datasets/wildlifedatasets/wildlifereid-10k",
+  "cows_total": 5112,
+  "cows_unique_ids": 90,
+  "cows_role_counts": {
+    "val_known": 2208,
+    "gallery": 1158,
+    "test_known": 721,
+    "unused_early_unknown": 410,
+    "val_unknown": 239,
+    "unused_val_testunknown": 174,
+    "unused_test_valunknown": 119,
+    "test_unknown": 83
+  },
+  "cows_cameras": {
+    "3": 3171,
+    "2": 1171,
+    "1": 770
+  },
+  "cows_days": {
+    "2023-08-14": 439,
+    "2023-08-15": 501,
+    "2023-08-16": 628,
+    "2023-08-17": 1154,
+    "2023-08-18": 1467,
+    "2023-08-19": 427,
+    "2023-08-20": 496
+  },
+  "cows_random_split_counts": {
+    "rand_query": 2208,
+    "": 1746,
+    "rand_gallery": 1158
+  },
+  "cows_median_wh": [
+    586,
+    244
+  ],
+  "cows_mean_brightness_sample": 158.63,
+  "nyala_total": 1942,
+  "nyala_unique_ids": 237,
+  "nyala_splits": {
+    "train": 1498,
+    "test": 444
+  },
+  "nyala_orientations": {
+    "left": 973,
+    "right": 969
+  }
+}
