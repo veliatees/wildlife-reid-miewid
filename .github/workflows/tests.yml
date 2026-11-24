@@ -14,4 +14,4 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install numpy scikit-learn pytest
-      - run: pytest -v
+      - run: python -m pytest -v
