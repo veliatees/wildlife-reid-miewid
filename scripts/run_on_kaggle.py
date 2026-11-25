@@ -16,6 +16,7 @@ STEPS = {
 SHOW = ["data_check_summary.json", "val_summary.json", "test_summary.json"]
 POLL_SECONDS = 30
 MAX_HOURS = 3
+MAX_QUEUED_MINUTES = 6
 
 def kaggle(*args):
     exe = shutil.which("kaggle")
@@ -51,6 +52,7 @@ def push(user, step):
 
 def wait(step, kernel_id):
     start = time.time()
+    queued_since = None
     while True:
         out = kaggle("kernels", "status", kernel_id)
         m = re.search(r'status\s+"?(?:KernelWorkerStatus\.)?([A-Za-z_]+)', out)
@@ -61,6 +63,16 @@ def wait(step, kernel_id):
         if "error" in status or "cancel" in status:
             print(f"[{step}] stopped with status {status}; log: https://www.kaggle.com/code/{kernel_id}")
             return False
+        if "queued" in status:
+            queued_since = queued_since or time.time()
+            if time.time() - queued_since > MAX_QUEUED_MINUTES * 60:
+                print(
+                    f"[{step}] stuck in QUEUED > {MAX_QUEUED_MINUTES}m. "
+                    "Cancel stuck sessions in Kaggle Active Events and re-run."
+                )
+                return False
+        else:
+            queued_since = None
         if time.time() - start > MAX_HOURS * 3600:
             sys.exit(f"[{step}] timeout after {MAX_HOURS}h")
         time.sleep(POLL_SECONDS)

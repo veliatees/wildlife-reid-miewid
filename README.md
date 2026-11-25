@@ -38,6 +38,8 @@ Locked test sets: `MultiCamCows2024` days 19–20 (`721` images of 70 gallery co
 
 ![Open-set score distributions for known vs unseen cows](results/fig3_openset_distributions.png)
 
+![Selective prediction using locked identity margin](results/fig5_selective_abstention.png)
+
 - **A small gallery-only adapter fixes cross-camera failure on frozen `MiewID-msv3` (H4: pass, with one clear trade-off).** Training a lightweight residual MLP (`2152 -> 512 -> 2152`, cosine classifier with margin) strictly on frozen `MiewID-msv3` gallery embeddings from days 14–16 raised cross-camera test Rank-1 from 66.6% to **87.0%** (+20.4 pp, bar >= +2.0 pp) and doubled cross-camera mAP (30.1% to 60.5%). The gap between same-camera and cross-camera matching disappeared (13.9 pp down to 0.4 pp: 87.4% vs. 87.0%). All-camera mAP jumped from 46.8% to 88.1%, blur Rank-1 rose from 64.8% to 73.1%, and open-set unknown AUROC rose rather than fell (`id_margin` 0.853 to 0.894, +0.041; `top1_sim` 0.900 to 0.925). The trade-off: all-camera Rank-1 did not improve over zero-shot (87.0% vs. 87.7%), Top-5 dropped (95.8% to 88.9%) because tighter identity clusters leave less room to recover once top-1 misses, and the adapter did not help 70% occlusion (60.1%). Also note that the adapter targets a fixed local herd (like a monitored reserve herd of known individuals plus occasional newcomers), not unseen species.
 - **What the worst silent errors look like.** Sorting `MiewID-msv3` test mistakes by highest top-1 similarity shows mostly dark, low-contrast coats with small white patches cropped tightly inside the overhead camera box. Even when top-1 similarity sits around 0.58–0.63, the identity margin on all six worst failures is near zero (0.00–0.04), which is why margin flagging catches them.
 
@@ -64,6 +66,8 @@ With the Kaggle CLI configured:
 ```bash
 python scripts/run_on_kaggle.py 01 02   # data audit, splits, validation factors & gallery adapter
 python scripts/run_on_kaggle.py 03      # locked held-out test set & figures (run once after 02)
+python scripts/reproduce_figures.py     # re-render summary charts locally from results/*.json
+python -m pytest -v                     # run unit tests for retrieval, margin & open-set metrics
 ```
 
 Each notebook runs on Kaggle with `wildlifedatasets/wildlifereid-10k` attached and receives the previous step's outputs. Downloaded artefacts are stored under `runs/` (gitignored) and final tables/figures under `results/`.
@@ -74,7 +78,10 @@ Each notebook runs on Kaggle with `wildlifedatasets/wildlifereid-10k` attached a
 notebooks/01_data_check.ipynb        metadata audit, corruption check, locked day/camera/ID splits
 notebooks/02_val_and_factors.ipynb   MiewID-msv3 & MegaDescriptor validation, degradations, adapter
 notebooks/03_test_set.ipynb          locked held-out test evaluation (days 19-20 & Nyala test) + figures
+src/metrics.py                       retrieval, distinct-identity margin, open-set AUROC, bootstrap CI
+tests/test_metrics.py                unit tests verifying zero camera leakage & margin behavior (CI)
 scripts/run_on_kaggle.py             pushes and polls notebooks sequentially via Kaggle CLI
+scripts/reproduce_figures.py         re-renders summary charts locally from locked results JSONs
 results/                             summary JSONs and figures (no weights or raw dataset images)
 docs/plan.md                         pre-registered hypotheses H1-H4, splits, and rules
 docs/progress.md                     chronological experiment log
